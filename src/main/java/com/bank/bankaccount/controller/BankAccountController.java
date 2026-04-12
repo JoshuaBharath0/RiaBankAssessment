@@ -2,7 +2,6 @@ package com.bank.bankaccount.controller;
 
 import com.bank.bankaccount.dto.BankAccountDTO;
 import com.bank.bankaccount.service.BankAccountService;
-import com.sun.net.httpserver.HttpServer;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,19 +25,19 @@ public class BankAccountController {
         return new ResponseEntity<>(createdAccount, HttpStatus.CREATED);
     }
 
-    @GetMapping("/search-bank-account-number")
+    @GetMapping("/search")
     public ResponseEntity<BankAccountDTO> getByBankAccountNumber(@RequestParam String accountNumber){
         BankAccountDTO findAccount=bankAccountService.getBankAccountByAccountNumber(accountNumber);
         return ResponseEntity.ok(findAccount);
     }
 
-    @GetMapping("search-bank-id-number/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<BankAccountDTO> getByBankIdNumber(@PathVariable long id){
         BankAccountDTO findAccount=bankAccountService.getBankAccountById(id);
         return ResponseEntity.ok(findAccount);
     }
-    @PutMapping("update-by-id/{id}")
-    public ResponseEntity<BankAccountDTO> updateBankAccount(@PathVariable long id,@RequestBody BankAccountDTO bankAccountDTO){
+    @PutMapping("/{id}")
+    public ResponseEntity<BankAccountDTO> updateBankAccount(@Valid @PathVariable long id,@RequestBody BankAccountDTO bankAccountDTO){
         BankAccountDTO updateAccount=bankAccountService.updateBankAccount(id,bankAccountDTO);
         return ResponseEntity.ok(updateAccount);
     }

@@ -8,12 +8,18 @@ import com.bank.bankaccount.service.BankAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+/**
+ * Service Implementation for Bank Accounts.
+ * Note: I am using a Global Exception Handler instead of try-catch blocks.
+ * This keeps the code clean and ensures all errors return a neat JSON
+ * message to the user automatically.
+ */
 
 // Enforce read-only to prevent accidental side effect and data integrity
 @Transactional(readOnly=true)
 @Service
 public class BankAccountServiceImpl implements BankAccountService {
-    private BankAccountRepository bankAccountRepository;
+    final BankAccountRepository bankAccountRepository;
 
     @Autowired
     public BankAccountServiceImpl(BankAccountRepository bankAccountRepository) {
@@ -26,7 +32,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 
             if(bankAccountRepository.findByAccountNumber(bankAccountDTO.getAccountNumber()).isPresent()){
-                throw new RuntimeException("Account failed as accound: "+bankAccountDTO.getAccountNumber()+" already exists");
+                throw new RuntimeException("Account failed as account: "+bankAccountDTO.getAccountNumber()+" already exists");
             }
             BankAccountEntity bankAccountEntity=new BankAccountEntity();
             bankAccountEntity.setAccountHolder(bankAccountDTO.getAccountHolder());
@@ -40,24 +46,19 @@ public class BankAccountServiceImpl implements BankAccountService {
 
     @Override
     public BankAccountDTO getBankAccountById(long id) {
-      try{
+
           BankAccountEntity bankAccountEntity=bankAccountRepository.findById(id)
                   .orElseThrow(()-> new RuntimeException("Account could not be found with ID: "+id));
           return maptoDTO(bankAccountEntity);
-      }catch (Exception e){
-          throw new RuntimeException("Server Error: Retrieval failed. "+e.getMessage());
-      }
     }
 
     @Override
     public BankAccountDTO getBankAccountByAccountNumber(String accountNumber) {
-        try{
+
             BankAccountEntity bankAccountEntity=bankAccountRepository.findByAccountNumber(accountNumber)
                     .orElseThrow(()-> new RuntimeException("Account could not be found with account number: "+accountNumber));
             return maptoDTO(bankAccountEntity);
-        }catch (Exception e){
-            throw new RuntimeException("Server Error: Retrieval failed. "+e.getMessage());
-        }
+
     }
 
 
@@ -65,7 +66,7 @@ public class BankAccountServiceImpl implements BankAccountService {
     @Override
     public BankAccountDTO updateBankAccount(Long id, BankAccountDTO bankAccountDTO) {
 
-        try {
+
             BankAccountEntity existingBankAccountEntity=bankAccountRepository.findById(id)
                     .orElseThrow(()-> new RuntimeException("Update has failed, user could not be found with ID: "+id));
 
@@ -74,9 +75,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
             BankAccountEntity updateEntity=bankAccountRepository.save(existingBankAccountEntity);
             return maptoDTO(updateEntity);
-        }catch(Exception e){
-            throw new RuntimeException("Server Error: could not update bank account: "+e.getMessage());
-        }
+
 
     }
 
