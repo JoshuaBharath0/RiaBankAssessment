@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,10 +28,10 @@ class BankAccountServiceImplTest {
     void testCreateAccount_ShouldFail_WhenAccountAlreadyExists() {
         //Arrange
         BankAccountDTO input = new BankAccountDTO();
-        input.setAccountNumber("51525354");
+        input.setAccountNumber("1234567");
 
         //pretend the account number exists
-        when(bankAccountRepository.findByAccountNumber("51525354"))
+        when(bankAccountRepository.findByAccountNumber("1234567"))
                 .thenReturn(Optional.of(new BankAccountEntity()));
 
         //we should expect an error
@@ -49,23 +50,23 @@ class BankAccountServiceImplTest {
         //Arrange
         BankAccountDTO input = new BankAccountDTO();
         input.setAccountHolder("Bruce Wayne");
-        input.setAccountNumber("777");
-        input.setBalance(1000000000000000.0);
+        input.setAccountNumber("1234567");
+        input.setBalance(new BigDecimal("1000000000000000.00"));
 
         //pretend account number does not exist
-        when(bankAccountRepository.findByAccountNumber("777")).thenReturn(Optional.empty());
+        when(bankAccountRepository.findByAccountNumber("1234567")).thenReturn(Optional.empty());
 
         // pretend to save and return some kind of data
         BankAccountEntity saveEnity = new BankAccountEntity();
         saveEnity.setId(100L);
-        saveEnity.setAccountNumber("777");
+        saveEnity.setAccountNumber("1234567");
         when(bankAccountRepository.save(any(BankAccountEntity.class))).thenReturn(saveEnity);
 
         //Act
         BankAccountDTO result = bankAccountService.createAccount(input);
         //Assert
         assertNotNull(result);
-        assertEquals("777", result.getAccountNumber());
+        assertEquals("1234567", result.getAccountNumber());
 
         verify(bankAccountRepository, times(1)).save(any());
     }

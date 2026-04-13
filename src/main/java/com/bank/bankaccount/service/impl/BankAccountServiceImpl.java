@@ -34,13 +34,16 @@ public class BankAccountServiceImpl implements BankAccountService {
             if(bankAccountRepository.findByAccountNumber(bankAccountDTO.getAccountNumber()).isPresent()){
                 throw new RuntimeException("Account failed as account: "+bankAccountDTO.getAccountNumber()+" already exists");
             }
+        if (bankAccountDTO.getBalance() == null) {
+            throw new RuntimeException("Account failed, Balance must not be null");
+        }
             BankAccountEntity bankAccountEntity=new BankAccountEntity();
             bankAccountEntity.setAccountHolder(bankAccountDTO.getAccountHolder());
             bankAccountEntity.setAccountNumber(bankAccountDTO.getAccountNumber());
             bankAccountEntity.setBalance(bankAccountDTO.getBalance());
 
             BankAccountEntity saveEntity=bankAccountRepository.save(bankAccountEntity);
-            return maptoDTO(saveEntity);
+            return mapToDTO(saveEntity);
        
     }
 
@@ -49,7 +52,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
           BankAccountEntity bankAccountEntity=bankAccountRepository.findById(id)
                   .orElseThrow(()-> new RuntimeException("Account could not be found with ID: "+id));
-          return maptoDTO(bankAccountEntity);
+          return mapToDTO(bankAccountEntity);
     }
 
     @Override
@@ -57,29 +60,37 @@ public class BankAccountServiceImpl implements BankAccountService {
 
             BankAccountEntity bankAccountEntity=bankAccountRepository.findByAccountNumber(accountNumber)
                     .orElseThrow(()-> new RuntimeException("Account could not be found with account number: "+accountNumber));
-            return maptoDTO(bankAccountEntity);
+            return mapToDTO(bankAccountEntity);
 
     }
 
 
-@Transactional
+    @Transactional
     @Override
     public BankAccountDTO updateBankAccount(Long id, BankAccountDTO bankAccountDTO) {
+        BankAccountEntity existingAccount = bankAccountRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Update failed: ID " + id + " not found."));
 
+        //help us with partial updates
+        if (bankAccountDTO.getAccountHolder() != null && !bankAccountDTO.getAccountHolder().isBlank()) {
+            existingAccount.setAccountHolder(bankAccountDTO.getAccountHolder());
+        }
+        if (bankAccountDTO.getAccountNumber() != null && !bankAccountDTO.getAccountNumber().isBlank()) {
+            existingAccount.setAccountNumber(bankAccountDTO.getAccountNumber());
+        }
+        if (bankAccountDTO.getBalance() != null) {
+            existingAccount.setBalance(bankAccountDTO.getBalance());
+        }
+        if (bankAccountDTO.getId() != null) {
+            throw new RuntimeException("The Account ID cannot be updated.");
+        }
 
-            BankAccountEntity existingBankAccountEntity=bankAccountRepository.findById(id)
-                    .orElseThrow(()-> new RuntimeException("Update has failed, user could not be found with ID: "+id));
+        BankAccountEntity updatedEntity = bankAccountRepository.save(existingAccount);
 
-            existingBankAccountEntity.setAccountHolder(bankAccountDTO.getAccountHolder());
-            existingBankAccountEntity.setBalance(bankAccountDTO.getBalance());
-
-            BankAccountEntity updateEntity=bankAccountRepository.save(existingBankAccountEntity);
-            return maptoDTO(updateEntity);
-
-
+        return mapToDTO(updatedEntity);
     }
 
-    private BankAccountDTO maptoDTO(BankAccountEntity bankAccountEntity){
+    private BankAccountDTO mapToDTO(BankAccountEntity bankAccountEntity){
         BankAccountDTO bankAccountDTO=new BankAccountDTO();
         bankAccountDTO.setId(bankAccountEntity.getId());
         bankAccountDTO.setAccountHolder(bankAccountEntity.getAccountHolder());

@@ -39,7 +39,7 @@ class BankAccountControllerTest {
         // Act & Assert
         mockMvc.perform(post("/bank")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"accountHolder\":\"Joshua\", \"accountNumber\":\"12345\", \"balance\":100.0}"))
+                        .content("{\"accountHolder\":\"Joshua\", \"accountNumber\":\"1234567\", \"balance\":\"100.0\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.accountHolder").value("Joshua"));
     }
@@ -48,14 +48,14 @@ class BankAccountControllerTest {
     void shouldFindAccountByNumber() throws Exception {
         // Arrange
         BankAccountDTO response = new BankAccountDTO();
-        response.setAccountNumber("12345");
+        response.setAccountNumber("1234567");
 
-        when(bankAccountService.getBankAccountByAccountNumber("12345")).thenReturn(response);
+        when(bankAccountService.getBankAccountByAccountNumber("1234567")).thenReturn(response);
 
         // Act & Assert
-        mockMvc.perform(get("/bank/search?accountNumber=12345"))
+        mockMvc.perform(get("/bank/search?accountNumber=1234567"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accountNumber").value("12345"));
+                .andExpect(jsonPath("$.accountNumber").value("1234567"));
     }
 
     @Test
@@ -69,7 +69,7 @@ class BankAccountControllerTest {
         // Act & Assert
         mockMvc.perform(put("/bank/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"accountHolder\":\"New Name\", \"accountNumber\":\"12345\", \"balance\":200.0}"))
+                        .content("{\"accountHolder\":\"New Name\", \"accountNumber\":\"12345\", \"balance\":\"200.0\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accountHolder").value("New Name"));
     }

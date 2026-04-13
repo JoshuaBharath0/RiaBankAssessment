@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,11 +22,11 @@ class BankAccountRepositoryTest {
     void testFindByAccountNumber() {
         BankAccountEntity bankAccountEntity = new BankAccountEntity();
         bankAccountEntity.setAccountHolder("Joshua");
-        bankAccountEntity.setAccountNumber("12345");
-        bankAccountEntity.setBalance(500000.0);
+        bankAccountEntity.setAccountNumber("1234567");
+        bankAccountEntity.setBalance(new BigDecimal("500000.00"));
         bankAccountRepository.save(bankAccountEntity);
 
-        Optional<BankAccountEntity> found=bankAccountRepository.findByAccountNumber("12345");
+        Optional<BankAccountEntity> found=bankAccountRepository.findByAccountNumber("1234567");
         assertTrue(found.isPresent());
         assertEquals("Joshua",found.get().getAccountHolder());
 

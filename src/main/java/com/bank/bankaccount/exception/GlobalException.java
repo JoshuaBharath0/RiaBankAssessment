@@ -1,6 +1,7 @@
 package com.bank.bankaccount.exception;
 
 import jakarta.validation.ConstraintViolationException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,15 +16,15 @@ import java.util.Map;
 @ControllerAdvice
 public class GlobalException {
 
-    // catches the manuel errors eg(id not found in DB).
+    // catches the manual errors eg(id not found in DB).
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Object> handleBusinessErrors(RuntimeException ex) {
         return buildResponse(ex.getMessage(), "BUSINESS_LOGIC_ERROR", HttpStatus.BAD_REQUEST);
     }
 
-    // violation error like @NotBlank on entities.
+    // catches errors in the controller for @Valid.
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<Object> handleBusinessErrors(ConstraintViolationException ex) {
+    public ResponseEntity<Object> handleConstraintViolation(ConstraintViolationException ex) {
         String message = ex.getConstraintViolations().iterator().next().getMessage();
         return buildResponse(message, "VIOLATION_ERROR", HttpStatus.BAD_REQUEST);
     }
@@ -31,8 +32,13 @@ public class GlobalException {
     // catches errors in the controller for @valid.
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleBusinessErrors(MethodArgumentNotValidException ex) {
-        String message = ex.getBindingResult().getFieldError().getDefaultMessage();
-        return buildResponse(message, "INPUT_FORMAT_ERROR", HttpStatus.BAD_REQUEST);
+        //String message = ex.getBindingResult().getFieldError().getDefaultMessage();
+        String combinedMessages = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
+                .collect(java.util.stream.Collectors.joining("; "));
+        return buildResponse(combinedMessages, "INPUT_FORMAT_ERROR", HttpStatus.BAD_REQUEST);
     }
 // safety net for server crashes.
     @ExceptionHandler(Exception.class)
@@ -40,7 +46,7 @@ public class GlobalException {
         return buildResponse("Server error occurred, try again later", "INTERNAL_SERVER_ERROR", HttpStatus.INTERNAL_SERVER_ERROR                                                           );
     }
 
-    // helper methode to organise structure of error display
+    // helper method to organise structure of error display
     private ResponseEntity<Object> buildResponse(String message, String errorCode, HttpStatus status) {
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", LocalDateTime.now());
