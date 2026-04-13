@@ -61,5 +61,10 @@ GET | /bank/search | Search via query parameter (?accountNumber=) | ADMIN
 PUT | /bank/{id} | Update details for an existing account | ADMIN
 
 ---------------------------------------------------------------------------------
-Note: This project was developed as a technical assessment to demonstrate 
-proficiency in Spring Boot, API design, and automated testing.
+Note: This project was developed as a technical assessment for Ria Money Transfer. It is designed to demonstrate proficiency in modern Spring Boot development, with a specific focus on:
+
+* Security: Implementing robust data validation, DTO patterns for sensitive info, and Spring Security (Authentication/Authorization).
+* Scalability: Utilizing a Clean Layered Architecture (Controller-Service-Repository-DTO-Entities) to ensure the system can be easily extended.
+* Maintainability: Prioritizing code readability, comprehensive automated testing with JUnit/Mockito, and interactive API documentation via Swagger.
+
+The solution is configured for a seamless local environment setup using an H2 In-Memory Database, ensuring it is ready to compile and run immediately upon review.
